@@ -10,10 +10,15 @@ import Courses from "../pages/admin/Courses";
 
 import TeacherDashboard from "../pages/teacher/Dashboard";
 import StudentDashboard from "../pages/student/Dashboard";
+import Enrollments from "../pages/admin/Enrollments";
 
 function AppRoutes() {
   return (
     <Routes>
+      <Route
+  path="/admin/enrollments"
+  element={<Enrollments />}
+/>
       <Route path="/" element={<Login />} />
 
       <Route

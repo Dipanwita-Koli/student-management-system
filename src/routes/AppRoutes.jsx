@@ -12,10 +12,15 @@ import TeacherDashboard from "../pages/teacher/Dashboard";
 import StudentDashboard from "../pages/student/Dashboard";
 import Enrollments from "../pages/admin/Enrollments";
 import Attendance from "../pages/teacher/Attendance";
+import Results from "../pages/teacher/Results";
 
 function AppRoutes() {
   return (
     <Routes>
+      <Route
+  path="/teacher/results"
+  element={<Results />}
+/>
       <Route
   path="/teacher/attendance"
   element={<Attendance />}

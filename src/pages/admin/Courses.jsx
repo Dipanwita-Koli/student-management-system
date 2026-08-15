@@ -135,8 +135,13 @@ function Courses() {
                     <td>{course.semester}</td>
                     <td>{course.department}</td>
                     <td>{course.teacher}</td>
+
                     <td className="table-actions">
-                      <button onClick={() => alert("Edit form will be added later.")}>
+                      <button
+                        onClick={() =>
+                          alert("Edit form will be added later.")
+                        }
+                      >
                         Edit
                       </button>
 

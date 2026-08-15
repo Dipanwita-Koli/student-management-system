@@ -1,41 +1,35 @@
 import { useState } from "react";
 import "../../styles/dashboard.css";
 
-const initialStudents = [
+const initialDepartments = [
   {
     id: 1,
-    studentId: "232-115-001",
-    name: "Rahim Ahmed",
-    email: "rahim@email.com",
-    department: "CSE",
-    semester: "7th",
+    departmentId: "CSE",
+    name: "Computer Science and Engineering",
+    description: "Department of Computer Science and Engineering",
   },
   {
     id: 2,
-    studentId: "232-115-002",
-    name: "Karim Hasan",
-    email: "karim@email.com",
-    department: "CSE",
-    semester: "7th",
+    departmentId: "EEE",
+    name: "Electrical and Electronic Engineering",
+    description: "Department of Electrical and Electronic Engineering",
   },
 ];
 
 const emptyForm = {
-  studentId: "",
+  departmentId: "",
   name: "",
-  email: "",
-  department: "",
-  semester: "",
+  description: "",
 };
 
-function Students() {
-  const [students, setStudents] = useState(initialStudents);
+function Departments() {
+  const [departments, setDepartments] = useState(initialDepartments);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState(emptyForm);
 
-  const filteredStudents = students.filter((student) =>
-    `${student.studentId} ${student.name} ${student.department}`
+  const filteredDepartments = departments.filter((department) =>
+    `${department.departmentId} ${department.name}`
       .toLowerCase()
       .includes(search.toLowerCase())
   );
@@ -50,8 +44,8 @@ function Students() {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    setStudents([
-      ...students,
+    setDepartments([
+      ...departments,
       {
         id: Date.now(),
         ...formData,
@@ -62,9 +56,9 @@ function Students() {
     setShowForm(false);
   };
 
-  const deleteStudent = (id) => {
-    if (window.confirm("Do you want to delete this student?")) {
-      setStudents(students.filter((student) => student.id !== id));
+  const deleteDepartment = (id) => {
+    if (window.confirm("Do you want to delete this department?")) {
+      setDepartments(departments.filter((department) => department.id !== id));
     }
   };
 
@@ -76,9 +70,9 @@ function Students() {
 
         <nav>
           <a href="/admin/dashboard">Dashboard</a>
-          <a className="active" href="/admin/students">Students</a>
+          <a href="/admin/students">Students</a>
           <a href="#">Teachers</a>
-          <a href="/admin/departments">Departments</a>
+          <a className="active" href="/admin/departments">Departments</a>
           <a href="#">Courses</a>
           <a href="#">Enrollments</a>
           <a href="/">Logout</a>
@@ -89,21 +83,21 @@ function Students() {
         <header className="page-title">
           <div>
             <p className="welcome-text">Administration</p>
-            <h1>Student Management</h1>
+            <h1>Department Management</h1>
           </div>
 
           <button onClick={() => setShowForm(true)}>
-            + Add Student
+            + Add Department
           </button>
         </header>
 
         <section className="table-card">
           <div className="table-toolbar">
-            <h2>All Students</h2>
+            <h2>All Departments</h2>
 
             <input
               type="search"
-              placeholder="Search by ID, name, department..."
+              placeholder="Search by ID or name..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -113,31 +107,27 @@ function Students() {
             <table>
               <thead>
                 <tr>
-                  <th>Student ID</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Department</th>
-                  <th>Semester</th>
+                  <th>Department ID</th>
+                  <th>Department Name</th>
+                  <th>Description</th>
                   <th>Actions</th>
                 </tr>
               </thead>
 
               <tbody>
-                {filteredStudents.map((student) => (
-                  <tr key={student.id}>
-                    <td>{student.studentId}</td>
-                    <td>{student.name}</td>
-                    <td>{student.email}</td>
-                    <td>{student.department}</td>
-                    <td>{student.semester}</td>
+                {filteredDepartments.map((department) => (
+                  <tr key={department.id}>
+                    <td>{department.departmentId}</td>
+                    <td>{department.name}</td>
+                    <td>{department.description}</td>
                     <td className="table-actions">
-                      <button onClick={() => alert("Edit form will be added next.")}>
+                      <button onClick={() => alert("Edit form will be added later.")}>
                         Edit
                       </button>
 
                       <button
                         className="delete-button"
-                        onClick={() => deleteStudent(student.id)}
+                        onClick={() => deleteDepartment(department.id)}
                       >
                         Delete
                       </button>
@@ -153,7 +143,8 @@ function Students() {
           <div className="modal-overlay">
             <section className="student-form-card">
               <div className="form-header">
-                <h2>Add New Student</h2>
+                <h2>Add Department</h2>
+
                 <button
                   className="close-button"
                   onClick={() => setShowForm(false)}
@@ -164,19 +155,21 @@ function Students() {
 
               <form className="student-form" onSubmit={handleSubmit}>
                 <label>
-                  Student ID
+                  Department ID
                   <input
-                    name="studentId"
-                    value={formData.studentId}
+                    name="departmentId"
+                    placeholder="Example: CSE"
+                    value={formData.departmentId}
                     onChange={handleChange}
                     required
                   />
                 </label>
 
                 <label>
-                  Full Name
+                  Department Name
                   <input
                     name="name"
+                    placeholder="Example: Computer Science and Engineering"
                     value={formData.name}
                     onChange={handleChange}
                     required
@@ -184,33 +177,11 @@ function Students() {
                 </label>
 
                 <label>
-                  Email Address
+                  Description
                   <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </label>
-
-                <label>
-                  Department
-                  <input
-                    name="department"
-                    placeholder="Example: CSE"
-                    value={formData.department}
-                    onChange={handleChange}
-                    required
-                  />
-                </label>
-
-                <label>
-                  Semester
-                  <input
-                    name="semester"
-                    placeholder="Example: 7th"
-                    value={formData.semester}
+                    name="description"
+                    placeholder="Short department description"
+                    value={formData.description}
                     onChange={handleChange}
                     required
                   />
@@ -225,7 +196,7 @@ function Students() {
                     Cancel
                   </button>
 
-                  <button type="submit">Save Student</button>
+                  <button type="submit">Save Department</button>
                 </div>
               </form>
             </section>
@@ -236,4 +207,4 @@ function Students() {
   );
 }
 
-export default Students;
+export default Departments;

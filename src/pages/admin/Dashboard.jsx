@@ -11,7 +11,7 @@ function AdminDashboard() {
           <a className="active" href="/admin/dashboard">Dashboard</a>
           <a href="/admin/students">Students</a>
           <a href="#">Teachers</a>
-          <a href="#">Departments</a>
+          <a href="/admin/departments">Departments</a>
           <a href="#">Courses</a>
           <a href="#">Enrollments</a>
           <a href="#">Logout</a>

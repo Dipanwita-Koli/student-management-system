@@ -1,3 +1,204 @@
+.dashboard-page {
+  min-height: 100vh;
+  display: flex;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.sidebar {
+  width: 250px;
+  min-height: 100vh;
+  padding: 28px 18px;
+  background: #0f172a;
+  color: white;
+}
+
+.sidebar-brand {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  background: #2563eb;
+  font-weight: 700;
+}
+
+.sidebar h2 {
+  margin: 16px 0 28px;
+  color: white;
+  font-size: 20px;
+}
+
+.sidebar nav {
+  display: grid;
+  gap: 7px;
+}
+
+.sidebar a {
+  padding: 11px 12px;
+  border-radius: 8px;
+  color: #cbd5e1;
+  text-decoration: none;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  background: #1e3a8a;
+  color: white;
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: 32px;
+}
+
+.dashboard-header,
+.page-title,
+.table-toolbar,
+.form-header,
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dashboard-header,
+.page-title {
+  margin-bottom: 28px;
+}
+
+.welcome-text {
+  margin: 0 0 5px;
+  color: #64748b;
+}
+
+.dashboard-header h1,
+.page-title h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.profile-circle {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.teacher-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.stat-card,
+.dashboard-section,
+.table-card {
+  padding: 22px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: white;
+}
+
+.stat-card p {
+  margin: 0;
+  color: #64748b;
+}
+
+.stat-card h2 {
+  margin: 12px 0 0;
+  font-size: 30px;
+}
+
+.dashboard-section,
+.teacher-course-card {
+  margin-top: 25px;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.action-grid button,
+.table-actions button,
+.page-title button,
+.table-toolbar button,
+.form-actions button {
+  margin: 0;
+}
+
+.action-grid button {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.table-toolbar {
+  margin-bottom: 20px;
+}
+
+.table-toolbar h2 {
+  margin: 0;
+}
+
+.table-toolbar input {
+  width: min(100%, 330px);
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 14px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 14px;
+}
+
+td {
+  color: #334155;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.table-actions button {
+  padding: 8px 11px;
+  font-size: 13px;
+}
+
+.delete-button {
+  background: #dc2626;
+}
+
+.delete-button:hover {
+  background: #b91c1c;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -12,13 +213,6 @@
   padding: 24px;
   border-radius: 14px;
   background: white;
-}
-
-.form-header,
-.form-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
 .form-header h2 {
@@ -48,12 +242,7 @@
 
 .form-actions {
   justify-content: flex-end;
-  gap: 10px;
   margin-top: 10px;
-}
-
-.form-actions button {
-  margin: 0;
 }
 
 .cancel-button {
@@ -61,6 +250,14 @@
   color: #334155;
 }
 
-.cancel-button:hover {
-  background: #cbd5e1;
+@media (max-width: 900px) {
+  .sidebar {
+    width: 190px;
+  }
+
+  .stats-grid,
+  .teacher-stats,
+  .action-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

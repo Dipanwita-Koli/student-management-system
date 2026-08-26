@@ -1,31 +1,40 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import "../../styles/dashboard.css";
 
 const initialEnrollments = [
   {
     id: 1,
-    studentId: "S-001",
-    studentName: "Dipanwita Koli",
-    courseCode: "CSE-323",
-    courseName: "Web Programming Lab",
-    semester: "7th",
+    enrollmentId: "ENR-001",
+    student: "Rahim Ahmed",
+    studentId: "232-115-001",
+    course: "Introduction to Computer Science",
+    courseCode: "CSE101",
+    semester: "1st",
+    enrollmentDate: "2026-01-10",
+    status: "Active",
   },
   {
     id: 2,
-    studentId: "S-002",
-    studentName: "Rahim Ahmed",
-    courseCode: "CSE-321",
-    courseName: "Database Management Systems",
-    semester: "7th",
+    enrollmentId: "ENR-002",
+    student: "Karim Hasan",
+    studentId: "232-115-002",
+    course: "Data Structures",
+    courseCode: "CSE201",
+    semester: "3rd",
+    enrollmentDate: "2026-01-12",
+    status: "Active",
   },
 ];
 
 const emptyForm = {
+  enrollmentId: "",
+  student: "",
   studentId: "",
-  studentName: "",
+  course: "",
   courseCode: "",
-  courseName: "",
   semester: "",
+  enrollmentDate: "",
+  status: "Active",
 };
 
 function Enrollments() {
@@ -35,53 +44,122 @@ function Enrollments() {
 
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [editingEnrollment, setEditingEnrollment] =
+    useState(null);
 
   const [formData, setFormData] = useState(emptyForm);
 
-  const filteredEnrollments = enrollments.filter((enrollment) =>
-    `${enrollment.studentId}
-     ${enrollment.studentName}
-     ${enrollment.courseCode}
-     ${enrollment.courseName}
-     ${enrollment.semester}`
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
+  // =========================
+  // SEARCH
+  // =========================
+  const filteredEnrollments = useMemo(() => {
+    const query = search.trim().toLowerCase();
 
-  const handleChange = (event) => {
-    setFormData({
-      ...formData,
-      [event.target.name]: event.target.value,
-    });
+    if (!query) {
+      return enrollments;
+    }
+
+    return enrollments.filter((enrollment) =>
+      `${enrollment.enrollmentId} ${enrollment.student} ${enrollment.studentId} ${enrollment.course} ${enrollment.courseCode} ${enrollment.semester} ${enrollment.enrollmentDate} ${enrollment.status}`
+        .toLowerCase()
+        .includes(query)
+    );
+  }, [enrollments, search]);
+
+  // =========================
+  // ADD
+  // =========================
+  const openAddForm = () => {
+    setEditingEnrollment(null);
+    setFormData(emptyForm);
+    setShowForm(true);
   };
 
+  // =========================
+  // EDIT
+  // =========================
+  const openEditForm = (enrollment) => {
+    setEditingEnrollment(enrollment);
+
+    setFormData({
+      enrollmentId: enrollment.enrollmentId,
+      student: enrollment.student,
+      studentId: enrollment.studentId,
+      course: enrollment.course,
+      courseCode: enrollment.courseCode,
+      semester: enrollment.semester,
+      enrollmentDate: enrollment.enrollmentDate,
+      status: enrollment.status,
+    });
+
+    setShowForm(true);
+  };
+
+  // =========================
+  // CLOSE FORM
+  // =========================
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingEnrollment(null);
+    setFormData(emptyForm);
+  };
+
+  // =========================
+  // INPUT CHANGE
+  // =========================
+  const handleChange = (event) => {
+    setFormData((current) => ({
+      ...current,
+      [event.target.name]: event.target.value,
+    }));
+  };
+
+  // =========================
+  // SAVE / UPDATE
+  // =========================
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    const newEnrollment = {
-      id: Date.now(),
-      ...formData,
-    };
+    if (editingEnrollment) {
+      setEnrollments((current) =>
+        current.map((enrollment) =>
+          enrollment.id === editingEnrollment.id
+            ? {
+                ...enrollment,
+                ...formData,
+              }
+            : enrollment
+        )
+      );
+    } else {
+      setEnrollments((current) => [
+        ...current,
+        {
+          id: Date.now(),
+          ...formData,
+        },
+      ]);
+    }
 
-    setEnrollments([
-      ...enrollments,
-      newEnrollment,
-    ]);
-
-    setFormData(emptyForm);
-    setShowForm(false);
+    closeForm();
   };
 
+  // =========================
+  // DELETE
+  // =========================
   const deleteEnrollment = (id) => {
+    const enrollment = enrollments.find(
+      (item) => item.id === id
+    );
+
     if (
+      enrollment &&
       window.confirm(
-        "Do you want to remove this enrollment?"
+        `Are you sure you want to delete enrollment ${enrollment.enrollmentId}?`
       )
     ) {
-      setEnrollments(
-        enrollments.filter(
-          (enrollment) => enrollment.id !== id
-        )
+      setEnrollments((current) =>
+        current.filter((item) => item.id !== id)
       );
     }
   };
@@ -89,7 +167,7 @@ function Enrollments() {
   return (
     <main className="dashboard-page">
 
-      {/* Sidebar */}
+      {/* ================= SIDEBAR ================= */}
       <aside className="sidebar">
 
         <div className="sidebar-brand">
@@ -99,6 +177,7 @@ function Enrollments() {
         <h2>Admin Panel</h2>
 
         <nav>
+
           <a href="/admin/dashboard">
             Dashboard
           </a>
@@ -129,17 +208,19 @@ function Enrollments() {
           <a href="/">
             Logout
           </a>
+
         </nav>
 
       </aside>
 
-
-      {/* Main Content */}
+      {/* ================= MAIN CONTENT ================= */}
       <section className="dashboard-content">
 
+        {/* HEADER */}
         <header className="page-title">
 
           <div>
+
             <p className="welcome-text">
               Administration
             </p>
@@ -147,29 +228,39 @@ function Enrollments() {
             <h1>
               Enrollment Management
             </h1>
+
           </div>
 
-          <button
-            onClick={() => setShowForm(true)}
-          >
-            + Enroll Student
+          <button onClick={openAddForm}>
+            + Add Enrollment
           </button>
 
         </header>
 
-
-        {/* Table */}
+        {/* ================= TABLE ================= */}
         <section className="table-card">
 
           <div className="table-toolbar">
 
-            <h2>
-              All Enrollments
-            </h2>
+            <div>
+
+              <h2>
+                All Enrollments
+              </h2>
+
+              <p className="table-count">
+                {filteredEnrollments.length} enrollment
+                {filteredEnrollments.length !== 1
+                  ? "s"
+                  : ""}{" "}
+                shown
+              </p>
+
+            </div>
 
             <input
               type="search"
-              placeholder="Search student or course..."
+              placeholder="Search enrollments..."
               value={search}
               onChange={(event) =>
                 setSearch(event.target.value)
@@ -178,22 +269,53 @@ function Enrollments() {
 
           </div>
 
-
           <div className="table-wrapper">
 
             <table>
 
               <thead>
-                <tr>
-                  <th>Student ID</th>
-                  <th>Student Name</th>
-                  <th>Course Code</th>
-                  <th>Course Name</th>
-                  <th>Semester</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
 
+                <tr>
+
+                  <th>
+                    Enrollment ID
+                  </th>
+
+                  <th>
+                    Student
+                  </th>
+
+                  <th>
+                    Student ID
+                  </th>
+
+                  <th>
+                    Course
+                  </th>
+
+                  <th>
+                    Course Code
+                  </th>
+
+                  <th>
+                    Semester
+                  </th>
+
+                  <th>
+                    Enrollment Date
+                  </th>
+
+                  <th>
+                    Status
+                  </th>
+
+                  <th>
+                    Actions
+                  </th>
+
+                </tr>
+
+              </thead>
 
               <tbody>
 
@@ -205,11 +327,19 @@ function Enrollments() {
                       <tr key={enrollment.id}>
 
                         <td>
+                          {enrollment.enrollmentId}
+                        </td>
+
+                        <td>
+                          {enrollment.student}
+                        </td>
+
+                        <td>
                           {enrollment.studentId}
                         </td>
 
                         <td>
-                          {enrollment.studentName}
+                          {enrollment.course}
                         </td>
 
                         <td>
@@ -217,14 +347,39 @@ function Enrollments() {
                         </td>
 
                         <td>
-                          {enrollment.courseName}
-                        </td>
-
-                        <td>
                           {enrollment.semester}
                         </td>
 
+                        <td>
+                          {enrollment.enrollmentDate}
+                        </td>
+
+                        <td>
+
+                          <span
+                            className={`status-badge ${
+                              enrollment.status.toLowerCase() ===
+                              "active"
+                                ? "status-active"
+                                : "status-inactive"
+                            }`}
+                          >
+                            {enrollment.status}
+                          </span>
+
+                        </td>
+
                         <td className="table-actions">
+
+                          <button
+                            onClick={() =>
+                              openEditForm(
+                                enrollment
+                              )
+                            }
+                          >
+                            Edit
+                          </button>
 
                           <button
                             className="delete-button"
@@ -234,7 +389,7 @@ function Enrollments() {
                               )
                             }
                           >
-                            Remove
+                            Delete
                           </button>
 
                         </td>
@@ -249,13 +404,10 @@ function Enrollments() {
                   <tr>
 
                     <td
-                      colSpan="6"
-                      style={{
-                        textAlign: "center",
-                        padding: "30px",
-                      }}
+                      colSpan="9"
+                      className="empty-state"
                     >
-                      No enrollments found
+                      No enrollments found.
                     </td>
 
                   </tr>
@@ -270,8 +422,8 @@ function Enrollments() {
 
         </section>
 
+        {/* ================= ADD / EDIT MODAL ================= */}
 
-        {/* Add Enrollment Modal */}
         {showForm && (
 
           <div className="modal-overlay">
@@ -280,111 +432,184 @@ function Enrollments() {
 
               <div className="form-header">
 
-                <h2>
-                  Enroll Student
-                </h2>
+                <div>
+
+                  <p className="welcome-text">
+                    {editingEnrollment
+                      ? "Update record"
+                      : "New record"}
+                  </p>
+
+                  <h2>
+                    {editingEnrollment
+                      ? "Edit Enrollment"
+                      : "Add New Enrollment"}
+                  </h2>
+
+                </div>
 
                 <button
                   className="close-button"
-                  onClick={() =>
-                    setShowForm(false)
-                  }
+                  type="button"
+                  onClick={closeForm}
                 >
                   ×
                 </button>
 
               </div>
 
-
               <form
                 className="student-form"
                 onSubmit={handleSubmit}
               >
 
-                <label>
-                  Student ID
+                <div className="form-grid">
 
-                  <input
-                    name="studentId"
-                    placeholder="Example: S-003"
-                    value={formData.studentId}
-                    onChange={handleChange}
-                    required
-                  />
+                  <label>
 
-                </label>
+                    Enrollment ID
 
+                    <input
+                      name="enrollmentId"
+                      value={
+                        formData.enrollmentId
+                      }
+                      onChange={handleChange}
+                      placeholder="Example: ENR-003"
+                      required
+                    />
 
-                <label>
-                  Student Name
+                  </label>
 
-                  <input
-                    name="studentName"
-                    placeholder="Student name"
-                    value={formData.studentName}
-                    onChange={handleChange}
-                    required
-                  />
+                  <label>
 
-                </label>
+                    Student Name
 
+                    <input
+                      name="student"
+                      value={formData.student}
+                      onChange={handleChange}
+                      placeholder="Student name"
+                      required
+                    />
 
-                <label>
-                  Course Code
+                  </label>
 
-                  <input
-                    name="courseCode"
-                    placeholder="Example: CSE-323"
-                    value={formData.courseCode}
-                    onChange={handleChange}
-                    required
-                  />
+                  <label>
 
-                </label>
+                    Student ID
 
+                    <input
+                      name="studentId"
+                      value={formData.studentId}
+                      onChange={handleChange}
+                      placeholder="Example: 232-115-003"
+                      required
+                    />
 
-                <label>
-                  Course Name
+                  </label>
 
-                  <input
-                    name="courseName"
-                    placeholder="Course name"
-                    value={formData.courseName}
-                    onChange={handleChange}
-                    required
-                  />
+                  <label>
 
-                </label>
+                    Course Name
 
+                    <input
+                      name="course"
+                      value={formData.course}
+                      onChange={handleChange}
+                      placeholder="Course name"
+                      required
+                    />
 
-                <label>
-                  Semester
+                  </label>
 
-                  <input
-                    name="semester"
-                    placeholder="Example: 7th"
-                    value={formData.semester}
-                    onChange={handleChange}
-                    required
-                  />
+                  <label>
 
-                </label>
+                    Course Code
 
+                    <input
+                      name="courseCode"
+                      value={
+                        formData.courseCode
+                      }
+                      onChange={handleChange}
+                      placeholder="Example: CSE301"
+                      required
+                    />
 
+                  </label>
+
+                  <label>
+
+                    Semester
+
+                    <input
+                      name="semester"
+                      value={formData.semester}
+                      onChange={handleChange}
+                      placeholder="Example: 5th"
+                      required
+                    />
+
+                  </label>
+
+                  <label>
+
+                    Enrollment Date
+
+                    <input
+                      type="date"
+                      name="enrollmentDate"
+                      value={
+                        formData.enrollmentDate
+                      }
+                      onChange={handleChange}
+                      required
+                    />
+
+                  </label>
+
+                  <label>
+
+                    Status
+
+                    <select
+                      name="status"
+                      value={formData.status}
+                      onChange={handleChange}
+                    >
+
+                      <option value="Active">
+                        Active
+                      </option>
+
+                      <option value="Inactive">
+                        Inactive
+                      </option>
+
+                    </select>
+
+                  </label>
+
+                </div>
+
+                {/* BUTTONS */}
                 <div className="form-actions">
 
                   <button
                     type="button"
                     className="cancel-button"
-                    onClick={() =>
-                      setShowForm(false)
-                    }
+                    onClick={closeForm}
                   >
                     Cancel
                   </button>
 
                   <button type="submit">
-                    Enroll Student
+
+                    {editingEnrollment
+                      ? "Update Enrollment"
+                      : "Save Enrollment"}
+
                   </button>
 
                 </div>

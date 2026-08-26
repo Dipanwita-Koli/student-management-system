@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import "../../styles/dashboard.css";
 
 const initialStudents = [
@@ -7,16 +7,20 @@ const initialStudents = [
     studentId: "232-115-001",
     name: "Rahim Ahmed",
     email: "rahim@email.com",
+    phone: "01711-123456",
     department: "CSE",
     semester: "7th",
+    status: "Active",
   },
   {
     id: 2,
     studentId: "232-115-002",
     name: "Karim Hasan",
     email: "karim@email.com",
+    phone: "01822-654321",
     department: "CSE",
     semester: "7th",
+    status: "Active",
   },
 ];
 
@@ -24,214 +28,521 @@ const emptyForm = {
   studentId: "",
   name: "",
   email: "",
+  phone: "",
   department: "",
   semester: "",
+  status: "Active",
 };
 
 function Students() {
   const [students, setStudents] = useState(initialStudents);
+
   const [search, setSearch] = useState("");
+
+  // Add/Edit form open-close
   const [showForm, setShowForm] = useState(false);
+
+  const [editingStudent, setEditingStudent] = useState(null);
+
+  // Form data
   const [formData, setFormData] = useState(emptyForm);
 
-  const filteredStudents = students.filter((student) =>
-    `${student.studentId} ${student.name} ${student.department}`
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
+  const filteredStudents = useMemo(() => {
+    const query = search.trim().toLowerCase();
 
-  const handleChange = (event) => {
-    setFormData({
-      ...formData,
-      [event.target.name]: event.target.value,
-    });
+    if (!query) {
+      return students;
+    }
+
+    return students.filter((student) =>
+      `${student.studentId} ${student.name} ${student.email} ${student.phone} ${student.department} ${student.semester} ${student.status}`
+        .toLowerCase()
+        .includes(query)
+    );
+  }, [students, search]);
+
+  // =========================
+  // ADD STUDENT
+  // =========================
+  const openAddForm = () => {
+    setEditingStudent(null);
+    setFormData(emptyForm);
+    setShowForm(true);
   };
 
+  // =========================
+  // EDIT STUDENT
+  // =========================
+  const openEditForm = (student) => {
+    setEditingStudent(student);
+
+    setFormData({
+      studentId: student.studentId,
+      name: student.name,
+      email: student.email,
+      phone: student.phone,
+      department: student.department,
+      semester: student.semester,
+      status: student.status,
+    });
+
+    setShowForm(true);
+  };
+
+  // =========================
+  // CLOSE FORM
+  // =========================
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingStudent(null);
+    setFormData(emptyForm);
+  };
+
+  // =========================
+  // FORM INPUT CHANGE
+  // =========================
+  const handleChange = (event) => {
+    setFormData((current) => ({
+      ...current,
+      [event.target.name]: event.target.value,
+    }));
+  };
+
+  // =========================
+  // SAVE / UPDATE STUDENT
+  // =========================
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    setStudents([
-      ...students,
-      {
-        id: Date.now(),
-        ...formData,
-      },
-    ]);
+    // EDIT
+    if (editingStudent) {
+      setStudents((current) =>
+        current.map((student) =>
+          student.id === editingStudent.id
+            ? {
+                ...student,
+                ...formData,
+              }
+            : student
+        )
+      );
+    }
 
-    setFormData(emptyForm);
-    setShowForm(false);
+    // ADD
+    else {
+      setStudents((current) => [
+        ...current,
+        {
+          id: Date.now(),
+          ...formData,
+        },
+      ]);
+    }
+
+    closeForm();
   };
 
+  // =========================
+  // DELETE STUDENT
+  // =========================
   const deleteStudent = (id) => {
-    if (window.confirm("Do you want to delete this student?")) {
-      setStudents(students.filter((student) => student.id !== id));
+    const student = students.find((item) => item.id === id);
+
+    if (
+      student &&
+      window.confirm(
+        `Are you sure you want to delete ${student.name}?`
+      )
+    ) {
+      setStudents((current) =>
+        current.filter((item) => item.id !== id)
+      );
     }
   };
 
   return (
     <main className="dashboard-page">
+
+      {/* ================= SIDEBAR ================= */}
       <aside className="sidebar">
         <div className="sidebar-brand">SM</div>
+
         <h2>Admin Panel</h2>
 
         <nav>
-          <a href="/admin/dashboard">Dashboard</a>
-          <a className="active" href="/admin/students">Students</a>
-          <a href="#">Teachers</a>
-          <a href="/admin/departments">Departments</a>
-          <a href="#">Courses</a>
-          <a href="#">Enrollments</a>
-          <a href="/">Logout</a>
+          <a href="/admin/dashboard">
+            Dashboard
+          </a>
+
+          <a
+            className="active"
+            href="/admin/students"
+          >
+            Students
+          </a>
+
+          <a href="/admin/teachers">
+            Teachers
+          </a>
+
+          <a href="/admin/departments">
+            Departments
+          </a>
+
+          <a href="/admin/courses">
+            Courses
+          </a>
+
+          <a href="/admin/enrollments">
+            Enrollments
+          </a>
+
+          <a href="/">
+            Logout
+          </a>
         </nav>
       </aside>
 
+      {/* ================= MAIN CONTENT ================= */}
       <section className="dashboard-content">
+
+        {/* HEADER */}
         <header className="page-title">
+
           <div>
-            <p className="welcome-text">Administration</p>
-            <h1>Student Management</h1>
+            <p className="welcome-text">
+              Administration
+            </p>
+
+            <h1>
+              Student Management
+            </h1>
           </div>
 
-          <button onClick={() => setShowForm(true)}>
+          <button onClick={openAddForm}>
             + Add Student
           </button>
+
         </header>
 
+        {/* ================= STUDENT TABLE ================= */}
         <section className="table-card">
+
           <div className="table-toolbar">
-            <h2>All Students</h2>
+
+            <div>
+              <h2>
+                All Students
+              </h2>
+
+              <p className="table-count">
+                {filteredStudents.length} student
+                {filteredStudents.length !== 1
+                  ? "s"
+                  : ""}{" "}
+                shown
+              </p>
+            </div>
 
             <input
               type="search"
-              placeholder="Search by ID, name, department..."
+              placeholder="Search students..."
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              onChange={(event) =>
+                setSearch(event.target.value)
+              }
             />
+
           </div>
 
           <div className="table-wrapper">
+
             <table>
+
               <thead>
                 <tr>
                   <th>Student ID</th>
                   <th>Name</th>
                   <th>Email</th>
+                  <th>Phone</th>
                   <th>Department</th>
                   <th>Semester</th>
+                  <th>Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
 
               <tbody>
-                {filteredStudents.map((student) => (
-                  <tr key={student.id}>
-                    <td>{student.studentId}</td>
-                    <td>{student.name}</td>
-                    <td>{student.email}</td>
-                    <td>{student.department}</td>
-                    <td>{student.semester}</td>
-                    <td className="table-actions">
-                      <button onClick={() => alert("Edit form will be added next.")}>
-                        Edit
-                      </button>
 
-                      <button
-                        className="delete-button"
-                        onClick={() => deleteStudent(student.id)}
-                      >
-                        Delete
-                      </button>
+                {filteredStudents.length > 0 ? (
+
+                  filteredStudents.map((student) => (
+
+                    <tr key={student.id}>
+
+                      <td>
+                        {student.studentId}
+                      </td>
+
+                      <td>
+                        {student.name}
+                      </td>
+
+                      <td>
+                        {student.email}
+                      </td>
+
+                      <td>
+                        {student.phone}
+                      </td>
+
+                      <td>
+                        {student.department}
+                      </td>
+
+                      <td>
+                        {student.semester}
+                      </td>
+
+                      <td>
+
+                        <span
+                          className={`status-badge ${
+                            student.status.toLowerCase() ===
+                            "active"
+                              ? "status-active"
+                              : "status-inactive"
+                          }`}
+                        >
+                          {student.status}
+                        </span>
+
+                      </td>
+
+                      <td className="table-actions">
+
+                        {/* EDIT BUTTON */}
+                        <button
+                          onClick={() =>
+                            openEditForm(student)
+                          }
+                        >
+                          Edit
+                        </button>
+
+                        {/* DELETE BUTTON */}
+                        <button
+                          className="delete-button"
+                          onClick={() =>
+                            deleteStudent(student.id)
+                          }
+                        >
+                          Delete
+                        </button>
+
+                      </td>
+
+                    </tr>
+
+                  ))
+
+                ) : (
+
+                  <tr>
+                    <td
+                      colSpan="8"
+                      className="empty-state"
+                    >
+                      No students found.
                     </td>
                   </tr>
-                ))}
+
+                )}
+
               </tbody>
+
             </table>
+
           </div>
+
         </section>
 
+        {/* ================= ADD / EDIT MODAL ================= */}
+
         {showForm && (
+
           <div className="modal-overlay">
+
             <section className="student-form-card">
+
+              {/* FORM HEADER */}
               <div className="form-header">
-                <h2>Add New Student</h2>
+
+                <div>
+
+                  <p className="welcome-text">
+                    {editingStudent
+                      ? "Update record"
+                      : "New record"}
+                  </p>
+
+                  <h2>
+                    {editingStudent
+                      ? "Edit Student"
+                      : "Add New Student"}
+                  </h2>
+
+                </div>
+
                 <button
                   className="close-button"
-                  onClick={() => setShowForm(false)}
+                  type="button"
+                  onClick={closeForm}
                 >
                   ×
                 </button>
+
               </div>
 
-              <form className="student-form" onSubmit={handleSubmit}>
-                <label>
-                  Student ID
-                  <input
-                    name="studentId"
-                    value={formData.studentId}
-                    onChange={handleChange}
-                    required
-                  />
-                </label>
+              {/* FORM */}
+              <form
+                className="student-form"
+                onSubmit={handleSubmit}
+              >
 
-                <label>
-                  Full Name
-                  <input
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                  />
-                </label>
+                <div className="form-grid">
 
-                <label>
-                  Email Address
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </label>
+                  {/* STUDENT ID */}
+                  <label>
+                    Student ID
 
-                <label>
-                  Department
-                  <input
-                    name="department"
-                    placeholder="Example: CSE"
-                    value={formData.department}
-                    onChange={handleChange}
-                    required
-                  />
-                </label>
+                    <input
+                      name="studentId"
+                      value={formData.studentId}
+                      onChange={handleChange}
+                      placeholder="Example: 232-115-003"
+                      required
+                    />
+                  </label>
 
-                <label>
-                  Semester
-                  <input
-                    name="semester"
-                    placeholder="Example: 7th"
-                    value={formData.semester}
-                    onChange={handleChange}
-                    required
-                  />
-                </label>
+                  {/* NAME */}
+                  <label>
+                    Full Name
 
+                    <input
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="Student name"
+                      required
+                    />
+                  </label>
+
+                  {/* EMAIL */}
+                  <label>
+                    Email Address
+
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="student@email.com"
+                      required
+                    />
+                  </label>
+
+                  {/* PHONE */}
+                  <label>
+                    Phone
+
+                    <input
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="01XXXXXXXXX"
+                      required
+                    />
+                  </label>
+
+                  {/* DEPARTMENT */}
+                  <label>
+                    Department
+
+                    <input
+                      name="department"
+                      value={formData.department}
+                      onChange={handleChange}
+                      placeholder="Example: CSE"
+                      required
+                    />
+                  </label>
+
+                  {/* SEMESTER */}
+                  <label>
+                    Semester
+
+                    <input
+                      name="semester"
+                      value={formData.semester}
+                      onChange={handleChange}
+                      placeholder="Example: 7th"
+                      required
+                    />
+                  </label>
+
+                  {/* STATUS */}
+                  <label>
+                    Status
+
+                    <select
+                      name="status"
+                      value={formData.status}
+                      onChange={handleChange}
+                    >
+                      <option value="Active">
+                        Active
+                      </option>
+
+                      <option value="Inactive">
+                        Inactive
+                      </option>
+                    </select>
+                  </label>
+
+                </div>
+
+                {/* FORM BUTTONS */}
                 <div className="form-actions">
+
                   <button
                     type="button"
                     className="cancel-button"
-                    onClick={() => setShowForm(false)}
+                    onClick={closeForm}
                   >
                     Cancel
                   </button>
 
-                  <button type="submit">Save Student</button>
+                  <button type="submit">
+
+                    {editingStudent
+                      ? "Update Student"
+                      : "Save Student"}
+
+                  </button>
+
                 </div>
+
               </form>
+
             </section>
+
           </div>
+
         )}
+
       </section>
+
     </main>
   );
 }

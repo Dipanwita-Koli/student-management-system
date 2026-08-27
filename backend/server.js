@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const departmentRoutes = require("./routes/departmentRoutes");
+const studentRoutes = require("./routes/studentRoutes");
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/departments", departmentRoutes);
+app.use("/api/students", studentRoutes);
 
 // Database Connection
 connectDB();

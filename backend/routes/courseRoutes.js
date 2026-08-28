@@ -4,6 +4,8 @@ const {
   createCourse,
   getCourses,
   getCourseById,
+  updateCourse,
+  deleteCourse,
 } = require("../controllers/courseController");
 
 const protect = require("../middleware/authMiddleware");
@@ -11,7 +13,7 @@ const authorizeRoles = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
-// Create Course - Admin only
+// Create course — Admin only
 router.post(
   "/",
   protect,
@@ -19,18 +21,36 @@ router.post(
   createCourse
 );
 
-// Get all Courses - Logged-in users
+// Get all courses — Admin and Teacher
 router.get(
   "/",
   protect,
+  authorizeRoles("admin", "teacher"),
   getCourses
 );
 
-// Get single Course - Logged-in users
+// Get single course — Admin and Teacher
 router.get(
   "/:id",
   protect,
+  authorizeRoles("admin", "teacher"),
   getCourseById
+);
+
+// Update course — Admin only
+router.put(
+  "/:id",
+  protect,
+  authorizeRoles("admin"),
+  updateCourse
+);
+
+// Delete course — Admin only
+router.delete(
+  "/:id",
+  protect,
+  authorizeRoles("admin"),
+  deleteCourse
 );
 
 module.exports = router;

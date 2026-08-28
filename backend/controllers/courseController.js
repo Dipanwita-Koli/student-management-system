@@ -92,8 +92,75 @@ const getCourseById = async (req, res) => {
   }
 };
 
+// Update Course
+const updateCourse = async (req, res) => {
+  try {
+    const {
+      courseCode,
+      courseName,
+      credit,
+      department,
+      teacher,
+      semester,
+    } = req.body;
+
+    const course = await Course.findById(req.params.id);
+
+    if (!course) {
+      return res.status(404).json({
+        message: "Course not found",
+      });
+    }
+
+    if (courseCode) course.courseCode = courseCode;
+    if (courseName) course.courseName = courseName;
+    if (credit) course.credit = credit;
+    if (department) course.department = department;
+    if (teacher) course.teacher = teacher;
+    if (semester) course.semester = semester;
+
+    await course.save();
+
+    res.status(200).json({
+      message: "Course updated successfully",
+      course,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+// Delete Course
+const deleteCourse = async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id);
+
+    if (!course) {
+      return res.status(404).json({
+        message: "Course not found",
+      });
+    }
+
+    await Course.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      message: "Course deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createCourse,
   getCourses,
   getCourseById,
+  updateCourse,
+  deleteCourse,
 };

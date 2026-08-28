@@ -4,6 +4,8 @@ const {
   createResult,
   getResults,
   getResultById,
+  updateResult,
+  deleteResult,
 } = require("../controllers/resultController");
 
 const protect = require("../middleware/authMiddleware");
@@ -31,6 +33,22 @@ router.get(
   "/:id",
   protect,
   getResultById
+);
+
+// Update Result - Admin and Teacher
+router.put(
+  "/:id",
+  protect,
+  authorizeRoles("admin", "teacher"),
+  updateResult
+);
+
+// Delete Result - Admin only
+router.delete(
+  "/:id",
+  protect,
+  authorizeRoles("admin"),
+  deleteResult
 );
 
 module.exports = router;

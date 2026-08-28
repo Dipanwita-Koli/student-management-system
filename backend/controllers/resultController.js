@@ -99,8 +99,77 @@ const getResultById = async (req, res) => {
   }
 };
 
+// Update Result
+const updateResult = async (req, res) => {
+  try {
+    const {
+      student,
+      course,
+      semester,
+      marks,
+      grade,
+      gradePoint,
+      remarks,
+    } = req.body;
+
+    const result = await Result.findById(req.params.id);
+
+    if (!result) {
+      return res.status(404).json({
+        message: "Result not found",
+      });
+    }
+
+    if (student) result.student = student;
+    if (course) result.course = course;
+    if (semester) result.semester = semester;
+    if (marks !== undefined) result.marks = marks;
+    if (grade) result.grade = grade;
+    if (gradePoint !== undefined) result.gradePoint = gradePoint;
+    if (remarks !== undefined) result.remarks = remarks;
+
+    await result.save();
+
+    res.status(200).json({
+      message: "Result updated successfully",
+      result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+// Delete Result
+const deleteResult = async (req, res) => {
+  try {
+    const result = await Result.findById(req.params.id);
+
+    if (!result) {
+      return res.status(404).json({
+        message: "Result not found",
+      });
+    }
+
+    await Result.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      message: "Result deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createResult,
   getResults,
   getResultById,
+  updateResult,
+  deleteResult,
 };

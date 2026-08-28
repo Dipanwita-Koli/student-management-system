@@ -11,6 +11,11 @@ const enrollmentRoutes = require("./routes/enrollmentRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const resultRoutes = require("./routes/resultRoutes");
 
+const {
+  errorMiddleware,
+  notFoundMiddleware,
+} = require("./middleware/errorMiddleware");
+
 dotenv.config();
 
 const app = express();
@@ -28,6 +33,19 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/enrollments", enrollmentRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/results", resultRoutes);
+
+// Test Route
+app.get("/", (req, res) => {
+  res.json({
+    message: "Student Management System API is running"
+  });
+});
+
+// 404 Handler
+app.use(notFoundMiddleware);
+
+// Error Middleware
+app.use(errorMiddleware);
 
 // Database Connection
 connectDB();

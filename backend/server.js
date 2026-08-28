@@ -7,6 +7,7 @@ const departmentRoutes = require("./routes/departmentRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const teacherRoutes = require("./routes/teacherRoutes");
 const courseRoutes = require("./routes/courseRoutes");
+const enrollmentRoutes = require("./routes/enrollmentRoutes");
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use("/api/departments", departmentRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/teachers", teacherRoutes);
 app.use("/api/courses", courseRoutes);
+app.use("/api/enrollments", enrollmentRoutes);
 
 // Database Connection
 connectDB();

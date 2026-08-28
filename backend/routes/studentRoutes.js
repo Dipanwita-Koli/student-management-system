@@ -4,6 +4,7 @@ const {
   createStudent,
   getStudents,
   getStudentById,
+  deleteStudent,
 } = require("../controllers/studentController");
 
 const protect = require("../middleware/authMiddleware");
@@ -33,6 +34,14 @@ router.get(
   protect,
   authorizeRoles("admin", "teacher"),
   getStudentById
+);
+
+// Delete student — Admin only
+router.delete(
+  "/:id",
+  protect,
+  authorizeRoles("admin"),
+  deleteStudent
 );
 
 module.exports = router;

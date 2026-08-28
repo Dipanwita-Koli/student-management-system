@@ -79,8 +79,66 @@ const getEnrollmentById = async (req, res) => {
   }
 };
 
+// Update Enrollment
+const updateEnrollment = async (req, res) => {
+  try {
+    const { student, course, semester, status } = req.body;
+
+    const enrollment = await Enrollment.findById(req.params.id);
+
+    if (!enrollment) {
+      return res.status(404).json({
+        message: "Enrollment not found",
+      });
+    }
+
+    if (student) enrollment.student = student;
+    if (course) enrollment.course = course;
+    if (semester) enrollment.semester = semester;
+    if (status) enrollment.status = status;
+
+    await enrollment.save();
+
+    res.status(200).json({
+      message: "Enrollment updated successfully",
+      enrollment,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+// Delete Enrollment
+const deleteEnrollment = async (req, res) => {
+  try {
+    const enrollment = await Enrollment.findById(req.params.id);
+
+    if (!enrollment) {
+      return res.status(404).json({
+        message: "Enrollment not found",
+      });
+    }
+
+    await Enrollment.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      message: "Enrollment deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createEnrollment,
   getEnrollments,
   getEnrollmentById,
+  updateEnrollment,
+  deleteEnrollment,
 };

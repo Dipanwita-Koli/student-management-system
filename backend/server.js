@@ -9,6 +9,8 @@ const teacherRoutes = require("./routes/teacherRoutes");
 const courseRoutes = require("./routes/courseRoutes");
 const enrollmentRoutes = require("./routes/enrollmentRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
+const resultRoutes = require("./routes/resultRoutes");
+
 dotenv.config();
 
 const app = express();
@@ -25,6 +27,7 @@ app.use("/api/teachers", teacherRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/enrollments", enrollmentRoutes);
 app.use("/api/attendance", attendanceRoutes);
+app.use("/api/results", resultRoutes);
 
 // Database Connection
 connectDB();

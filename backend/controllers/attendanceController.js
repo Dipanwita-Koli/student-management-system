@@ -81,8 +81,67 @@ const getAttendanceById = async (req, res) => {
   }
 };
 
+// Update Attendance
+const updateAttendance = async (req, res) => {
+  try {
+    const { student, course, date, status, remarks } = req.body;
+
+    const attendance = await Attendance.findById(req.params.id);
+
+    if (!attendance) {
+      return res.status(404).json({
+        message: "Attendance record not found",
+      });
+    }
+
+    if (student) attendance.student = student;
+    if (course) attendance.course = course;
+    if (date) attendance.date = date;
+    if (status) attendance.status = status;
+    if (remarks !== undefined) attendance.remarks = remarks;
+
+    await attendance.save();
+
+    res.status(200).json({
+      message: "Attendance updated successfully",
+      attendance,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+// Delete Attendance
+const deleteAttendance = async (req, res) => {
+  try {
+    const attendance = await Attendance.findById(req.params.id);
+
+    if (!attendance) {
+      return res.status(404).json({
+        message: "Attendance record not found",
+      });
+    }
+
+    await Attendance.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      message: "Attendance deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createAttendance,
   getAttendances,
   getAttendanceById,
+  updateAttendance,
+  deleteAttendance,
 };

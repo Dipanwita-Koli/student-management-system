@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
+
 const authRoutes = require("./routes/authRoutes");
 const departmentRoutes = require("./routes/departmentRoutes");
 const studentRoutes = require("./routes/studentRoutes");
@@ -37,7 +38,7 @@ app.use("/api/results", resultRoutes);
 // Test Route
 app.get("/", (req, res) => {
   res.json({
-    message: "Student Management System API is running"
+    message: "Student Management System API is running",
   });
 });
 
@@ -49,13 +50,6 @@ app.use(errorMiddleware);
 
 // Database Connection
 connectDB();
-
-// Test Route
-app.get("/", (req, res) => {
-  res.json({
-    message: "Student Management System API is running"
-  });
-});
 
 const PORT = process.env.PORT || 5000;
 
